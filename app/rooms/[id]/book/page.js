@@ -1,132 +1,126 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState, useContext } from "react";
 import axios from "axios";
+import { useParams, useRouter } from "next/navigation";
+import API from "@/lib/api";
+import toast from "react-hot-toast";
+import { AuthContext } from "@/providers/AuthProvider";
 
 export default function BookRoomPage() {
   const { id } = useParams();
   const router = useRouter();
+  const { user } = useContext(AuthContext);
 
   const [room, setRoom] = useState(null);
-  const [total, setTotal] = useState(0);
-  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const [form, setForm] = useState({
+    date: "",
+    startTime: "",
+    endTime: "",
+  });
 
   useEffect(() => {
-    const load = async () => {
+    const loadRoom = async () => {
       const res = await axios.get(`http://localhost:5000/rooms/${id}`);
       setRoom(res.data);
     };
 
-    load();
+    loadRoom();
   }, [id]);
 
-  const calculate = (start, end) => {
-    if (!room) return;
-    const totalCost = (parseInt(end) - parseInt(start)) * room.hourlyRate;
-    setTotal(totalCost);
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleBooking = async (e) => {
+  const handleBook = async (e) => {
     e.preventDefault();
-
-    const form = e.target;
-
-    const bookingData = {
-      roomId: id,
-      roomName: room.roomName,
-      image: room.image,
-      date: form.date.value,
-      startTime: form.startTime.value,
-      endTime: form.endTime.value,
-      totalCost: total,
-      note: form.note.value,
-    };
+    setLoading(true);
 
     try {
-      await axios.post(
-        "http://localhost:5000/bookings",
-        bookingData,
-        { withCredentials: true }
-      );
+      const booking = {
+        roomId: id,
+        roomName: room.roomName,
+        image: room.image,
+        date: form.date,
+        startTime: form.startTime,
+        endTime: form.endTime,
+        userEmail: user.email,
+        status: "pending",
+      };
 
-      setMessage("Room booked successfully");
+      await axios.post("http://localhost:5000/bookings", booking, {
+        withCredentials: true,
+      });
 
-      setTimeout(() => {
-        router.push("/my-bookings");
-      }, 1000);
-    } catch {
-      setMessage("Selected slot already booked");
+      toast.success("Booking successful");
+      router.push("/my-bookings");
+    } catch (err) {
+      toast.error("Booking failed");
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (!room) return <p className="p-6">Loading...</p>;
+  if (!room) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0b1220] text-white">
+        Loading...
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">
-        Book {room.roomName}
-      </h1>
+    <main className="min-h-screen flex items-center justify-center bg-[#0b1220] px-4">
 
-      <form onSubmit={handleBooking} className="space-y-4">
+      <div className="w-full max-w-md p-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl">
 
-        <input
-          type="date"
-          name="date"
-          required
-          className="w-full border p-3 rounded"
-        />
+        <h1 className="text-2xl font-bold text-center text-cyan-400">
+          Book Room
+        </h1>
 
-        <select
-          name="startTime"
-          required
-          onChange={(e) =>
-            calculate(e.target.value, document.getElementsByName("endTime")[0].value)
-          }
-          className="w-full border p-3 rounded"
-        >
-          <option value="">Start Time</option>
-          {Array.from({ length: 13 }, (_, i) => i + 8).map((t) => (
-            <option key={t} value={t}>
-              {t}:00
-            </option>
-          ))}
-        </select>
-
-        <select
-          name="endTime"
-          required
-          onChange={(e) =>
-            calculate(document.getElementsByName("startTime")[0].value, e.target.value)
-          }
-          className="w-full border p-3 rounded"
-        >
-          <option value="">End Time</option>
-          {Array.from({ length: 13 }, (_, i) => i + 8).map((t) => (
-            <option key={t} value={t}>
-              {t}:00
-            </option>
-          ))}
-        </select>
-
-        <textarea
-          name="note"
-          placeholder="Special note"
-          className="w-full border p-3 rounded"
-        />
-
-        <p className="font-bold">
-          Total Cost: ${total}
+        <p className="text-center text-slate-400 text-sm mt-2">
+          {room.roomName}
         </p>
 
-        <button className="bg-black text-white px-6 py-3 rounded cursor-pointer">
-          Confirm Booking
-        </button>
+        <form onSubmit={handleBook} className="mt-6 space-y-4">
 
-        {message && (
-          <p className="text-blue-600">{message}</p>
-        )}
-      </form>
-    </div>
+          <input
+            type="date"
+            name="date"
+            onChange={handleChange}
+            className="w-full p-3 rounded-xl bg-black/20 border border-white/10 text-white cursor-pointer"
+            required
+          />
+
+          <input
+            type="number"
+            name="startTime"
+            placeholder="Start Time"
+            onChange={handleChange}
+            className="w-full p-3 rounded-xl bg-black/20 border border-white/10 text-white cursor-pointer"
+            required
+          />
+
+          <input
+            type="number"
+            name="endTime"
+            placeholder="End Time"
+            onChange={handleChange}
+            className="w-full p-3 rounded-xl bg-black/20 border border-white/10 text-white cursor-pointer"
+            required
+          />
+
+          <button
+            disabled={loading}
+            className="w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition cursor-pointer"
+          >
+            {loading ? "Booking..." : "Confirm Booking"}
+          </button>
+
+        </form>
+      </div>
+    </main>
   );
 }

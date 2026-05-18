@@ -1,86 +1,102 @@
 "use client";
 
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
-import { AuthContext } from "@/providers/AuthProvider";
+import API from "@/lib/api";
+import toast from "react-hot-toast";
 
-export default function RoomDetailsPage() {
+export default function RoomDetails() {
   const { id } = useParams();
   const router = useRouter();
-  const { user } = useContext(AuthContext);
 
   const [room, setRoom] = useState(null);
 
   useEffect(() => {
     const loadRoom = async () => {
-      const res = await axios.get(`http://localhost:5000/rooms/${id}`);
+      const res = await axios.get(`${API}/rooms/${id}`);
       setRoom(res.data);
     };
 
-    if (id) loadRoom();
+    loadRoom();
   }, [id]);
 
   if (!room) {
     return (
-      <div className="text-center py-20 text-xl">
+      <div className="min-h-screen flex items-center justify-center bg-[#0b1220] text-white">
         Loading...
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-10">
+    <main className="min-h-screen bg-[#0b1220] text-white px-6 py-10">
 
-      <img
-        src={room.image}
-        alt={room.roomName}
-        className="w-full h-[400px] object-cover rounded"
-      />
+      <div className="max-w-5xl mx-auto">
 
-      <h1 className="text-3xl font-bold mt-6">
-        {room.roomName}
-      </h1>
+        {/* IMAGE */}
+        <div className="rounded-2xl overflow-hidden border border-white/10">
+          <img
+            src={room.image}
+            className="w-full h-[400px] object-cover"
+          />
+        </div>
 
-      <p className="text-gray-600 mt-4">
-        {room.description}
-      </p>
+        {/* CONTENT */}
+        <div className="mt-6 p-6 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl">
 
-      <div className="mt-6 space-y-2">
-        <p><strong>Floor:</strong> {room.floor}</p>
-        <p><strong>Capacity:</strong> {room.capacity} people</p>
-        <p><strong>Hourly Rate:</strong> ${room.hourlyRate}</p>
-        <p><strong>Booking Count:</strong> {room.bookingCount || 0}</p>
-        <p><strong>Owner:</strong> {room.ownerEmail}</p>
-      </div>
+          <h1 className="text-3xl font-bold text-cyan-400">
+            {room.roomName}
+          </h1>
 
-      <div className="mt-6">
-        <h3 className="font-bold mb-2">Amenities:</h3>
+          <p className="text-slate-300 mt-3">
+            {room.description}
+          </p>
 
-        <div className="flex flex-wrap gap-2">
-          {room.amenities?.map((item, i) => (
-            <span
-              key={i}
-              className="bg-gray-200 px-3 py-1 rounded"
-            >
-              {item}
-            </span>
-          ))}
+          <div className="grid md:grid-cols-3 gap-4 mt-6 text-sm text-slate-300">
+
+            <div className="p-4 rounded-xl bg-black/30 border border-white/10">
+              Floor: <span className="text-white">{room.floor}</span>
+            </div>
+
+            <div className="p-4 rounded-xl bg-black/30 border border-white/10">
+              Capacity: <span className="text-white">{room.capacity}</span>
+            </div>
+
+            <div className="p-4 rounded-xl bg-black/30 border border-white/10">
+              Price: <span className="text-cyan-400">${room.hourlyRate}/hr</span>
+            </div>
+
+          </div>
+
+          {/* AMENITIES */}
+          <div className="mt-6">
+            <h2 className="font-semibold mb-2 text-white">
+              Amenities
+            </h2>
+
+            <div className="flex flex-wrap gap-2">
+              {room.amenities?.map((a, i) => (
+                <span
+                  key={i}
+                  className="px-3 py-1 text-sm rounded-full bg-white/10 border border-white/10"
+                >
+                  {a}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* BUTTON */}
+          <button
+            onClick={() => router.push(`/rooms/${room._id}/book`)}
+            className="mt-8 w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition"
+          >
+            Book Now
+          </button>
+
         </div>
       </div>
-
-      <button
-        onClick={() => {
-          if (!user) {
-            router.push("/login");
-          } else {
-            router.push(`/rooms/${id}/book`);
-          }
-        }}
-        className="mt-8 bg-black text-white px-6 py-3 rounded cursor-pointer"
-      >
-        {user ? "Book Now" : "Login to Book"}
-      </button>
-    </div>
+    </main>
   );
 }

@@ -3,34 +3,43 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
+import API from "@/lib/api";
 
 export default function MyListingsPage() {
   const [rooms, setRooms] = useState([]);
 
-  const loadRooms = async () => {
-    const res = await axios.get(
-      "http://localhost:5000/my-rooms",
-      { withCredentials: true }
-    );
-
-    setRooms(res.data);
-  };
-
   useEffect(() => {
+    document.title = "StudyNook – My Listings";
     loadRooms();
   }, []);
 
+  const loadRooms = async () => {
+    try {
+      const res = await axios.get(
+        `${API}/my-listings`,
+        { withCredentials: true }
+      );
+
+      setRooms(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm("Delete room?");
-
     if (!confirmDelete) return;
 
-    await axios.delete(
-      `http://localhost:5000/rooms/${id}`,
-      { withCredentials: true }
-    );
+    try {
+      await axios.delete(
+        `${API}/rooms/${id}`,
+        { withCredentials: true }
+      );
 
-    loadRooms();
+      loadRooms();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -46,7 +55,7 @@ export default function MyListingsPage() {
           {rooms.map((room) => (
             <div key={room._id} className="border p-4 rounded">
               <img
-                src={room.image}
+                src={room.image || "/default.png"}
                 className="w-full h-48 object-cover rounded"
               />
 

@@ -1,19 +1,23 @@
 "use client";
 
-
 import { useContext, useState } from "react";
 import { AuthContext } from "@/providers/AuthProvider";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import toast from "react-hot-toast";
+import API from "@/lib/api";
 
 export default function AddRoomPage() {
   const { user } = useContext(AuthContext);
   const router = useRouter();
-  const [message, setMessage] = useState("");
+
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleAddRoom = async (e) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
     const form = e.target;
 
@@ -32,101 +36,127 @@ export default function AddRoomPage() {
     };
 
     try {
-      await axios.post("http://localhost:5000/rooms", roomData, {
+      await axios.post(`${API}/rooms`, roomData, {
         withCredentials: true,
       });
 
-      
       toast.success("Room added successfully");
       form.reset();
 
       setTimeout(() => {
         router.push("/rooms");
-      }, 1200);
-    } catch (error) {
-      setMessage("Failed to add room");
-      console.log(error);
+      }, 1000);
+
+    } catch (err) {
+      console.log(err);
+      setError("Failed to add room");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Add Study Room</h1>
+    <main className="min-h-screen flex items-center justify-center bg-[#0b1220] px-4 relative overflow-hidden">
 
-      <form onSubmit={handleAddRoom} className="space-y-4">
+      {/* Background glow */}
+      <div className="absolute w-[450px] h-[450px] bg-indigo-500/20 blur-3xl rounded-full top-20 left-10"></div>
+      <div className="absolute w-[350px] h-[350px] bg-cyan-500/20 blur-3xl rounded-full bottom-10 right-10"></div>
 
-        <input
-          name="roomName"
-          placeholder="Room Name"
-          required
-          className="w-full border p-3 rounded"
-        />
+      {/* Card */}
+      <div className="relative w-full max-w-2xl p-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl">
 
-        <textarea
-          name="description"
-          placeholder="Description"
-          required
-          className="w-full border p-3 rounded"
-        />
+        <h1 className="text-3xl font-bold text-center text-cyan-400">
+          Add Study Room
+        </h1>
 
-        <input
-          name="image"
-          placeholder="Image URL"
-          required
-          className="w-full border p-3 rounded"
-        />
+        <p className="text-center text-slate-400 text-sm mt-2">
+          Create a new study space for students
+        </p>
 
-        <input
-          name="floor"
-          placeholder="Floor"
-          required
-          className="w-full border p-3 rounded"
-        />
+        <form onSubmit={handleAddRoom} className="mt-6 grid md:grid-cols-2 gap-4">
 
-        <input
-          name="capacity"
-          type="number"
-          placeholder="Capacity"
-          required
-          className="w-full border p-3 rounded"
-        />
+          <input
+            name="roomName"
+            placeholder="Room Name"
+            className="p-3 rounded-xl bg-black/20 border border-white/10 text-white focus:border-cyan-400 outline-none md:col-span-2"
+            required
+          />
 
-        <input
-          name="hourlyRate"
-          type="number"
-          placeholder="Hourly Rate"
-          required
-          className="w-full border p-3 rounded"
-        />
+          <input
+            name="image"
+            placeholder="Image URL"
+            className="p-3 rounded-xl bg-black/20 border border-white/10 text-white focus:border-cyan-400 outline-none md:col-span-2"
+            required
+          />
 
-        <div>
-          <p className="font-semibold mb-2">Amenities</p>
+          <textarea
+            name="description"
+            placeholder="Description"
+            className="p-3 rounded-xl bg-black/20 border border-white/10 text-white focus:border-cyan-400 outline-none md:col-span-2"
+            required
+          />
 
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              "Whiteboard",
-              "Projector",
-              "Wi-Fi",
-              "Power Outlets",
-              "Quiet Zone",
-              "Air Conditioning",
-            ].map((item) => (
-              <label key={item} className="flex gap-2">
-                <input type="checkbox" name="amenities" value={item} />
-                {item}
-              </label>
-            ))}
+          <input
+            name="floor"
+            placeholder="Floor"
+            className="p-3 rounded-xl bg-black/20 border border-white/10 text-white focus:border-cyan-400 outline-none"
+            required
+          />
+
+          <input
+            name="capacity"
+            type="number"
+            placeholder="Capacity"
+            className="p-3 rounded-xl bg-black/20 border border-white/10 text-white focus:border-cyan-400 outline-none"
+            required
+          />
+
+          <input
+            name="hourlyRate"
+            type="number"
+            placeholder="Hourly Rate"
+            className="p-3 rounded-xl bg-black/20 border border-white/10 text-white focus:border-cyan-400 outline-none md:col-span-2"
+            required
+          />
+
+          {/* Amenities */}
+          <div className="md:col-span-2">
+            <p className="text-slate-300 mb-2 font-medium">
+              Amenities
+            </p>
+
+            <div className="grid grid-cols-2 gap-2 text-sm text-slate-300">
+              {[
+                "Wi-Fi",
+                "Whiteboard",
+                "Projector",
+                "AC",
+                "Quiet Zone",
+                "Power Outlets",
+              ].map((item) => (
+                <label key={item} className="flex gap-2 items-center">
+                  <input type="checkbox" name="amenities" value={item} />
+                  {item}
+                </label>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <button className="bg-black text-white px-6 py-3 rounded cursor-pointer">
-          Add Room
-        </button>
+          {error && (
+            <p className="text-red-400 text-sm text-center md:col-span-2">
+              {error}
+            </p>
+          )}
 
-        {message && (
-          <p className="mt-2 text-blue-600 font-medium">{message}</p>
-        )}
-      </form>
-    </div>
+          <button
+            disabled={loading}
+            className="md:col-span-2 py-3 rounded-xl font-semibold bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition"
+          >
+            {loading ? "Adding Room..." : "Add Room"}
+          </button>
+
+        </form>
+      </div>
+    </main>
   );
 }

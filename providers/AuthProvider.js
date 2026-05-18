@@ -2,6 +2,7 @@
 
 import { createContext, useEffect, useState } from "react";
 import app from "@/firebase/firebase.config";
+import API from "@/lib/api";
 import {
   getAuth,
   GoogleAuthProvider,
@@ -25,53 +26,48 @@ export default function AuthProvider({ children }) {
 
   const googleProvider = new GoogleAuthProvider();
 
-  // REGISTER
+  // Register
   const registerUser = (email, password) => {
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
-  // LOGIN
+  // Login
   const loginUser = (email, password) => {
     return signInWithEmailAndPassword(auth, email, password);
   };
 
-  // GOOGLE LOGIN
+  // Google
   const googleLogin = () => {
     return signInWithPopup(auth, googleProvider);
   };
 
-  // LOGOUT (STABLE FIX)
+  // Logout
   const logoutUser = async () => {
     try {
-      // 1. Firebase logout FIRST
       await signOut(auth);
 
-      // 2. Clear backend cookie
       await axios.post(
-        "http://localhost:5000/logout",
+        `${API}/logout`,
         {},
         { withCredentials: true }
       );
 
-      // 3. Force UI update
       setUser(null);
       setLoading(false);
     } catch (err) {
-      console.log("Logout error:", err);
+      console.log(err);
     }
   };
 
-  // AUTH LISTENER (FINAL FIX)
+  // Observer
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      console.log("AUTH STATE:", currentUser);
-
       if (currentUser) {
         setUser(currentUser);
 
         try {
           await axios.post(
-            "http://localhost:5000/jwt",
+            `${API}/jwt`,
             { email: currentUser.email },
             { withCredentials: true }
           );

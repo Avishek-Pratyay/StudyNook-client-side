@@ -1,84 +1,66 @@
 "use client";
 
-
 import { useContext, useState } from "react";
 import { AuthContext } from "@/providers/AuthProvider";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
-  const { loginUser, googleLogin } = useContext(AuthContext);
+  const { loginUser } = useContext(AuthContext);
   const router = useRouter();
-
   const [error, setError] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
 
-    const email = e.target.email.value;
-    const password = e.target.password.value;
-
     try {
-      await loginUser(email, password);
+      await loginUser(e.target.email.value, e.target.password.value);
       router.push("/");
-    } catch (err) {
-      setError("Invalid email or password");
-    }
-  };
-
-  const handleGoogle = async () => {
-    try {
-      await googleLogin();
-      router.push("/");
-    } catch (err) {
-      setError("Google login failed");
+    } catch {
+      setError("Invalid credentials");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="w-[400px] p-6 shadow-lg rounded-lg">
-        <h1 className="text-2xl font-bold mb-4">Login</h1>
+    <main className="min-h-screen bg-[#0b1220] flex items-center justify-center px-4">
 
-        <form onSubmit={handleLogin} className="space-y-3">
-          <input
-            name="email"
-            type="email"
-            placeholder="Email"
-            className="w-full border p-2"
-            required
-          />
+      <form
+        onSubmit={handleLogin}
+        className="card w-full max-w-md p-8"
+      >
 
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            className="w-full border p-2"
-            required
-          />
+        <h1 className="text-2xl font-bold mb-6 text-center text-cyan-400">
+          Login
+        </h1>
 
-          {error && <p className="text-red-500">{error}</p>}
+        <input
+          name="email"
+          placeholder="Email"
+          className="w-full p-3 mb-4 rounded-xl bg-white/5 border border-white/10 text-white"
+        />
 
-          <button className="w-full bg-black text-white p-2 cursor-pointer">
-            Login
-          </button>
-        </form>
+        <input
+          name="password"
+          type="password"
+          placeholder="Password"
+          className="w-full p-3 mb-4 rounded-xl bg-white/5 border border-white/10 text-white"
+        />
 
-        <button
-          onClick={handleGoogle}
-          className="w-full mt-3 border p-2 cursor-pointer"
-        >
-          Continue with Google
+        {error && <p className="text-red-400 mb-3">{error}</p>}
+
+        <button className="w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition">
+          Login
         </button>
 
-        <p className="mt-3 text-sm">
+        <p className="text-sm text-slate-400 mt-4 text-center">
           No account?{" "}
-          <Link href="/register" className="text-blue-500">
+          <Link href="/register" className="text-cyan-400">
             Register
           </Link>
         </p>
-      </div>
-    </div>
+
+      </form>
+    </main>
   );
 }

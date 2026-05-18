@@ -3,86 +3,108 @@
 import { useContext } from "react";
 import { AuthContext } from "@/providers/AuthProvider";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const { user, logoutUser, loading } = useContext(AuthContext);
+  const pathname = usePathname();
 
-  const handleLogout = async () => {
-    await logoutUser();
-  };
+  const isActive = (path) => pathname === path;
+
+  const linkClass = (path) =>
+    `hover:text-indigo-600 transition ${
+      isActive(path)
+        ? "text-indigo-600 font-semibold border-b-2 border-indigo-600 pb-1"
+        : ""
+    }`;
 
   if (loading) {
-    return <nav className="px-6 py-3 shadow-md">Loading...</nav>;
+    return (
+      <nav className="px-6 py-4 bg-white shadow">
+        Loading...
+      </nav>
+    );
   }
 
   return (
-    <nav className="flex items-center justify-between px-6 py-3 shadow-md bg-white">
+    <nav className="sticky top-0 z-50 backdrop-blur-xl bg-[#0b1220]/70 border-b border-white/10">
+      <div className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
 
-      <Link href="/" className="text-xl font-bold cursor-pointer">
-        StudyNook
-      </Link>
-
-      <div className="flex gap-5 items-center">
-        <Link href="/" className="hover:text-blue-500 cursor-pointer">
-          Home
+        {/* Logo */}
+        <Link href="/" className="text-xl font-bold text-cyan-400">
+          StudyNook
         </Link>
 
-        <Link href="/rooms" className="hover:text-blue-500 cursor-pointer">
-          Rooms
-        </Link>
+        {/* Links */}
+        <div className="hidden md:flex items-center gap-6 text-sm font-medium">
 
-        {user && (
-  <>
-    <Link href="/add-room" className="hover:text-blue-500 cursor-pointer">
-      Add Room
-    </Link>
+          <Link className={linkClass("/")} href="/">
+            Home
+          </Link>
 
-    <Link href="/my-bookings" className="hover:text-blue-500 cursor-pointer">
-      My Bookings
-    </Link>
-    <Link href="/my-listings" className="hover:text-blue-500 cursor-pointer">
-  My Listings
-</Link>
-  </>
-)}
-        {!user && (
-          <>
-            <Link href="/login" className="hover:text-blue-500 cursor-pointer">
-              Login
-            </Link>
+          <Link className={linkClass("/rooms")} href="/rooms">
+            Rooms
+          </Link>
 
-            <Link href="/register" className="hover:text-blue-500 cursor-pointer">
-              Register
-            </Link>
-          </>
-        )}
-      </div>
+          {user && (
+            <>
+              <Link className={linkClass("/add-room")} href="/add-room">
+                Add Room
+              </Link>
 
-      <div className="flex items-center gap-3">
-        {user ? (
-          <>
-            <img
-              src={
-                user.photoURL
-                  ? user.photoURL
-                  : "https://i.ibb.co/2n0T2kR/default-user.png"
-              }
-              alt="user"
-              className="w-[35px] h-[35px] rounded-full"
-            />
+              <Link className={linkClass("/my-bookings")} href="/my-bookings">
+                Bookings
+              </Link>
 
-            <span>{user.displayName || "User"}</span>
+              <Link className={linkClass("/my-listings")} href="/my-listings">
+                Listings
+              </Link>
+            </>
+          )}
+        </div>
 
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 text-white px-3 py-1 rounded cursor-pointer"
-            >
-              Logout
-            </button>
-          </>
-        ) : (
-          <span className="text-gray-500">Guest</span>
-        )}
+        {/* Right side */}
+        <div className="flex items-center gap-3">
+
+          {user ? (
+            <>
+              <img
+                src={user.photoURL || "https://i.ibb.co/2n0T2kR/default-user.png"}
+                className="w-9 h-9 rounded-full border hover:scale-105 transition"
+              />
+
+              <span className="text-sm font-semibold hidden sm:block">
+                {user.displayName}
+              </span>
+
+              <button
+                onClick={logoutUser}
+                className="px-3 py-1 text-sm rounded-lg bg-red-500 text-white hover:bg-red-600 transition"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <div className="flex gap-3 text-sm">
+
+              <Link
+                href="/login"
+                className="px-3 py-1 rounded hover:bg-gray-100 hover:text-indigo-600 transition"
+              >
+                Login
+              </Link>
+
+              <Link
+                href="/register"
+                className="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700 transition"
+              >
+                Register
+              </Link>
+
+            </div>
+          )}
+
+        </div>
       </div>
     </nav>
   );

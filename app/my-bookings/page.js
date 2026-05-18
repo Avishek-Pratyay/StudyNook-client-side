@@ -2,31 +2,40 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+import API from "@/lib/api";
 
 export default function MyBookingsPage() {
   const [bookings, setBookings] = useState([]);
 
-  const loadBookings = async () => {
-    const res = await axios.get(
-      "http://localhost:5000/my-bookings",
-      { withCredentials: true }
-    );
-
-    setBookings(res.data);
-  };
-
   useEffect(() => {
+    document.title = "StudyNook – My Bookings";
     loadBookings();
   }, []);
 
-  const cancelBooking = async (id) => {
-    await axios.patch(
-      `http://localhost:5000/bookings/${id}/cancel`,
-      {},
-      { withCredentials: true }
-    );
+  const loadBookings = async () => {
+    try {
+      const res = await axios.get(
+        `${API}/bookings`,
+        { withCredentials: true }
+      );
 
-    loadBookings();
+      setBookings(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const cancelBooking = async (id) => {
+    try {
+      await axios.delete(
+        `${API}/bookings/${id}`,
+        { withCredentials: true }
+      );
+
+      loadBookings();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -42,7 +51,7 @@ export default function MyBookingsPage() {
           {bookings.map((b) => (
             <div key={b._id} className="border p-4 rounded">
               <img
-                src={b.image}
+                src={b.image || "/default.png"}
                 className="w-full max-w-sm h-48 object-cover rounded"
               />
 
@@ -51,20 +60,15 @@ export default function MyBookingsPage() {
               </h2>
 
               <p>Date: {b.date}</p>
-              <p>
-                {b.startTime}:00 - {b.endTime}:00
-              </p>
+              <p>{b.startTime}:00 - {b.endTime}:00</p>
               <p>Total: ${b.totalCost}</p>
-              <p>Status: {b.status}</p>
 
-              {b.status === "confirmed" && (
-                <button
-                  onClick={() => cancelBooking(b._id)}
-                  className="bg-red-500 text-white px-4 py-2 rounded mt-2"
-                >
-                  Cancel
-                </button>
-              )}
+              <button
+                onClick={() => cancelBooking(b._id)}
+                className="bg-red-500 text-white px-4 py-2 rounded mt-2"
+              >
+                Cancel
+              </button>
             </div>
           ))}
         </div>
