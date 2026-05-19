@@ -4,12 +4,14 @@ import { useContext, useState } from "react";
 import { AuthContext } from "@/providers/AuthProvider";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { getAuth, signOut } from "firebase/auth";
+import { getAuth, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import axios from "axios";
+import toast from "react-hot-toast";
+import API from "@/lib/api";
 
 export default function RegisterPage() {
   const { registerUser, updateProfile } = useContext(AuthContext);
   const router = useRouter();
-
   const [error, setError] = useState("");
 
   const handleRegister = async (e) => {
@@ -21,7 +23,6 @@ export default function RegisterPage() {
     const photo = e.target.photo.value;
     const password = e.target.password.value;
 
-    // validation
     if (password.length < 6) {
       return setError("Password must be at least 6 characters");
     }
@@ -33,31 +34,57 @@ export default function RegisterPage() {
     }
 
     try {
-      // 1. Create user
       const result = await registerUser(email, password);
 
-      // 2. Update profile
       await updateProfile(result.user, {
         displayName: name,
         photoURL: photo,
       });
 
-      // 3. IMPORTANT FIX → force logout (prevents auto login)
-      const auth = getAuth();
-      await signOut(auth);
+      // save user in db
+     try {
+  await axios.post(`${API}/users`, {
+    name,
+    email,
+    photo,
+  });
+} catch (dbError) {
+  console.log("DB save failed:", dbError);
+}
 
-      // 4. Redirect to login page
+      toast.success("Registration successful! Please login.");
+
+      // logout after registration
+      await signOut(getAuth());
+
       router.push("/login");
-
     } catch (err) {
-      setError("Registration failed. Try again.");
-      console.log(err);
+  console.log(err);
+  setError(err.message);
+}
+  };
+
+  const handleGoogle = async () => {
+    try {
+      const auth = getAuth();
+      const provider = new GoogleAuthProvider();
+
+      const result = await signInWithPopup(auth, provider);
+
+      await axios.post(`${API}/users`, {
+        name: result.user.displayName,
+        email: result.user.email,
+        photo: result.user.photoURL,
+      });
+
+      router.push("/");
+    } catch {
+      toast.error("Google login failed");
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0b1220] px-4">
-
       <div className="w-full max-w-md p-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl">
 
         <h1 className="text-3xl font-bold text-center text-cyan-400">
@@ -73,7 +100,7 @@ export default function RegisterPage() {
           <input
             name="name"
             placeholder="Full Name"
-            className="w-full p-3 rounded-xl bg-black/20 border border-white/10 text-white focus:border-cyan-400 outline-none"
+            className="w-full p-3 rounded-xl bg-black/20 border border-white/10 text-white"
             required
           />
 
@@ -81,14 +108,14 @@ export default function RegisterPage() {
             name="email"
             type="email"
             placeholder="Email Address"
-            className="w-full p-3 rounded-xl bg-black/20 border border-white/10 text-white focus:border-cyan-400 outline-none"
+            className="w-full p-3 rounded-xl bg-black/20 border border-white/10 text-white"
             required
           />
 
           <input
             name="photo"
             placeholder="Photo URL"
-            className="w-full p-3 rounded-xl bg-black/20 border border-white/10 text-white focus:border-cyan-400 outline-none"
+            className="w-full p-3 rounded-xl bg-black/20 border border-white/10 text-white"
             required
           />
 
@@ -96,7 +123,7 @@ export default function RegisterPage() {
             name="password"
             type="password"
             placeholder="Password"
-            className="w-full p-3 rounded-xl bg-black/20 border border-white/10 text-white focus:border-cyan-400 outline-none"
+            className="w-full p-3 rounded-xl bg-black/20 border border-white/10 text-white"
             required
           />
 
@@ -104,11 +131,16 @@ export default function RegisterPage() {
             <p className="text-red-400 text-sm text-center">{error}</p>
           )}
 
-          <button
-            type="submit"
-            className="w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition"
-          >
+          <button className="w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-indigo-500 to-cyan-500 hover:scale-[1.02] transition cursor-pointer">
             Register
+          </button>
+
+          <button
+            type="button"
+            onClick={handleGoogle}
+            className="w-full py-3 rounded-xl border border-white/20 text-white hover:bg-white/10 transition cursor-pointer"
+          >
+            Continue with Google
           </button>
 
         </form>

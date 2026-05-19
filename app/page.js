@@ -115,7 +115,7 @@ export default function HomePage() {
                 </h3>
 
                 <p className="text-sm text-slate-400 mt-1">
-                  {room.description?.slice(0, 90)}...
+                  {room.description?.slice(0, 100)}...
                 </p>
 
                 {/* info */}

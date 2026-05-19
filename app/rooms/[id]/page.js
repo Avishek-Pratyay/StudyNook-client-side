@@ -1,16 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import API from "@/lib/api";
+import { AuthContext } from "@/providers/AuthProvider";
 import toast from "react-hot-toast";
 
 export default function RoomDetails() {
   const { id } = useParams();
   const router = useRouter();
+  const { user } = useContext(AuthContext);
 
   const [room, setRoom] = useState(null);
+  const [bookingCount, setBookingCount] = useState(0);
 
   useEffect(() => {
     const loadRoom = async () => {
@@ -18,8 +21,30 @@ export default function RoomDetails() {
       setRoom(res.data);
     };
 
+    const loadCount = async () => {
+      const res = await axios.get(`${API}/rooms/${id}/booking-count`);
+      setBookingCount(res.data.count);
+    };
+
     loadRoom();
+    loadCount();
   }, [id]);
+
+  const handleDelete = async () => {
+    const confirmDelete = window.confirm("Delete room?");
+    if (!confirmDelete) return;
+
+    try {
+      await axios.delete(`${API}/rooms/${id}`, {
+        withCredentials: true,
+      });
+
+      toast.success("Room deleted successfully");
+      router.push("/my-listings");
+    } catch {
+      toast.error("Delete failed");
+    }
+  };
 
   if (!room) {
     return (
@@ -29,12 +54,13 @@ export default function RoomDetails() {
     );
   }
 
+  const isOwner = user?.email === room.ownerEmail;
+
   return (
     <main className="min-h-screen bg-[#0b1220] text-white px-6 py-10">
 
       <div className="max-w-5xl mx-auto">
 
-        {/* IMAGE */}
         <div className="rounded-2xl overflow-hidden border border-white/10">
           <img
             src={room.image}
@@ -42,7 +68,6 @@ export default function RoomDetails() {
           />
         </div>
 
-        {/* CONTENT */}
         <div className="mt-6 p-6 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl">
 
           <h1 className="text-3xl font-bold text-cyan-400">
@@ -53,7 +78,7 @@ export default function RoomDetails() {
             {room.description}
           </p>
 
-          <div className="grid md:grid-cols-3 gap-4 mt-6 text-sm text-slate-300">
+          <div className="grid md:grid-cols-4 gap-4 mt-6 text-sm text-slate-300">
 
             <div className="p-4 rounded-xl bg-black/30 border border-white/10">
               Floor: <span className="text-white">{room.floor}</span>
@@ -67,9 +92,12 @@ export default function RoomDetails() {
               Price: <span className="text-cyan-400">${room.hourlyRate}/hr</span>
             </div>
 
+            <div className="p-4 rounded-xl bg-black/30 border border-white/10">
+              Booked: <span className="text-cyan-400">{bookingCount}</span>
+            </div>
+
           </div>
 
-          {/* AMENITIES */}
           <div className="mt-6">
             <h2 className="font-semibold mb-2 text-white">
               Amenities
@@ -87,13 +115,39 @@ export default function RoomDetails() {
             </div>
           </div>
 
-          {/* BUTTON */}
           <button
-            onClick={() => router.push(`/rooms/${room._id}/book`)}
-            className="mt-8 w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition"
+            onClick={() => {
+              if (!user) {
+                router.push(`/login?redirect=/rooms/${id}/book`);
+                return;
+              }
+
+              router.push(`/rooms/${room._id}/book`);
+            }}
+            className="mt-8 w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-indigo-500 to-cyan-500 hover:scale-[1.02] transition cursor-pointer"
           >
-            Book Now
+            {user ? "Book Now" : "Login to Book"}
           </button>
+
+          {isOwner && (
+            <div className="grid md:grid-cols-2 gap-4 mt-4">
+
+              <button
+                onClick={() => router.push(`/edit-room/${id}`)}
+                className="py-3 rounded-xl bg-blue-500 hover:bg-blue-600 transition cursor-pointer"
+              >
+                Edit Room
+              </button>
+
+              <button
+                onClick={handleDelete}
+                className="py-3 rounded-xl bg-red-500 hover:bg-red-600 transition cursor-pointer"
+              >
+                Delete Room
+              </button>
+
+            </div>
+          )}
 
         </div>
       </div>

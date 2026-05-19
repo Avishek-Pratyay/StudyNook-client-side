@@ -24,7 +24,6 @@ export default function RoomsPage() {
 
       <h1 className="text-3xl font-bold mb-6">Explore Rooms</h1>
 
-      {/* search */}
       <input
         value={search}
         onChange={(e) => {
@@ -35,45 +34,57 @@ export default function RoomsPage() {
         className="w-full md:w-1/2 p-3 rounded-xl bg-white/5 border border-white/10 text-white"
       />
 
-      {/* grid */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+      {rooms.length === 0 ? (
+        <div className="text-center mt-20">
+          <h2 className="text-2xl font-bold text-cyan-400">
+            No rooms found
+          </h2>
+          <p className="text-slate-400 mt-2">
+            Try another search keyword
+          </p>
+        </div>
+      ) : (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
 
-        {rooms.map((room) => (
-          <div key={room._id} className="card overflow-hidden">
+          {rooms.map((room) => (
+            <div key={room._id} className="card overflow-hidden">
 
-            <img
-              src={room.image}
-              className="h-48 w-full object-cover"
-            />
+              <img
+                src={room.image}
+                className="h-48 w-full object-cover"
+              />
 
-            <div className="p-5">
+              <div className="p-5">
 
-              <h2 className="font-bold text-lg">{room.roomName}</h2>
+                <h2 className="font-bold text-lg">
+                  {room.roomName}
+                </h2>
 
-              <p className="text-slate-400 text-sm mt-1">
-                {room.description?.slice(0, 80)}...
-              </p>
-
-              <div className="mt-3 text-sm text-slate-300">
-                <p>Floor: {room.floor}</p>
-                <p>Capacity: {room.capacity}</p>
-                <p className="text-cyan-400 font-semibold">
-                  ${room.hourlyRate}/hr
+                <p className="text-slate-400 text-sm mt-1">
+                  {room.description?.slice(0, 80)}...
                 </p>
+
+                <div className="mt-3 text-sm text-slate-300">
+                  <p>Floor: {room.floor}</p>
+                  <p>Capacity: {room.capacity}</p>
+                  <p className="text-cyan-400 font-semibold">
+                    ${room.hourlyRate}/hr
+                  </p>
+                </div>
+
+                <Link
+                  href={`/rooms/${room._id}`}
+                  className="mt-4 block text-center bg-gradient-to-r from-indigo-500 to-cyan-500 py-2 rounded-xl hover:scale-[1.02] transition cursor-pointer"
+                >
+                  View Details
+                </Link>
+
               </div>
-
-              <Link
-                href={`/rooms/${room._id}`}
-                className="mt-4 block text-center bg-gradient-to-r from-indigo-500 to-cyan-500 py-2 rounded-xl"
-              >
-                View Details
-              </Link>
-
             </div>
-          </div>
-        ))}
+          ))}
 
-      </div>
+        </div>
+      )}
     </main>
   );
 }
