@@ -10,7 +10,7 @@ import { AuthContext } from "@/providers/AuthProvider";
 export default function BookRoomPage() {
   const { id } = useParams();
   const router = useRouter();
-  const { user } = useContext(AuthContext);
+  const { user, loading: authLoading } = useContext(AuthContext);
 
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -21,9 +21,16 @@ export default function BookRoomPage() {
     endTime: "",
   });
 
+  // redirect guest to login, then come back here
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push(`/login?redirect=/rooms/${id}/book`);
+    }
+  }, [user, authLoading, id, router]);
+
   useEffect(() => {
     const loadRoom = async () => {
-      const res = await axios.get(`http://localhost:5000/rooms/${id}`);
+      const res = await axios.get(`${API}/rooms/${id}`);
       setRoom(res.data);
     };
 
@@ -50,7 +57,7 @@ export default function BookRoomPage() {
         status: "pending",
       };
 
-      await axios.post("http://localhost:5000/bookings", booking, {
+      await axios.post(`${API}/bookings`, booking, {
         withCredentials: true,
       });
 
@@ -63,7 +70,7 @@ export default function BookRoomPage() {
     }
   };
 
-  if (!room) {
+  if (!room || authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0b1220] text-white">
         Loading...
@@ -73,7 +80,6 @@ export default function BookRoomPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-[#0b1220] px-4">
-
       <div className="w-full max-w-md p-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl">
 
         <h1 className="text-2xl font-bold text-center text-cyan-400">
@@ -84,37 +90,50 @@ export default function BookRoomPage() {
           {room.roomName}
         </p>
 
-        <form onSubmit={handleBook} className="mt-6 space-y-4">
+        <form onSubmit={handleBook} className="mt-6 space-y-5">
 
-          <input
-            type="date"
-            name="date"
-            onChange={handleChange}
-            className="w-full p-3 rounded-xl bg-black/20 border border-white/10 text-white cursor-pointer"
-            required
-          />
+          <div>
+            <label className="block text-sm text-slate-300 mb-2">
+              Select booking date
+            </label>
+            <input
+              type="date"
+              name="date"
+              onChange={handleChange}
+              className="w-full p-3 rounded-xl bg-slate-900/60 border border-white/10 text-white outline-none focus:border-cyan-400 transition cursor-pointer"
+              required
+            />
+          </div>
 
-          <input
-            type="number"
-            name="startTime"
-            placeholder="Start Time"
-            onChange={handleChange}
-            className="w-full p-3 rounded-xl bg-black/20 border border-white/10 text-white cursor-pointer"
-            required
-          />
+          <div>
+            <label className="block text-sm text-slate-300 mb-2">
+              Start time
+            </label>
+            <input
+              type="time"
+              name="startTime"
+              onChange={handleChange}
+              className="w-full p-3 rounded-xl bg-slate-900/60 border border-white/10 text-white outline-none focus:border-cyan-400 transition cursor-pointer"
+              required
+            />
+          </div>
 
-          <input
-            type="number"
-            name="endTime"
-            placeholder="End Time"
-            onChange={handleChange}
-            className="w-full p-3 rounded-xl bg-black/20 border border-white/10 text-white cursor-pointer"
-            required
-          />
+          <div>
+            <label className="block text-sm text-slate-300 mb-2">
+              End time
+            </label>
+            <input
+              type="time"
+              name="endTime"
+              onChange={handleChange}
+              className="w-full p-3 rounded-xl bg-slate-900/60 border border-white/10 text-white outline-none focus:border-cyan-400 transition cursor-pointer"
+              required
+            />
+          </div>
 
           <button
             disabled={loading}
-            className="w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition cursor-pointer"
+            className="w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-indigo-500 to-cyan-500 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300 cursor-pointer"
           >
             {loading ? "Booking..." : "Confirm Booking"}
           </button>
