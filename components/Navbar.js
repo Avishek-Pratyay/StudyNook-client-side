@@ -1,9 +1,10 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "@/providers/AuthProvider";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 export default function Navbar() {
   const { user, logoutUser, loading } = useContext(AuthContext);
@@ -11,6 +12,32 @@ export default function Navbar() {
   const router = useRouter();
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [theme, setTheme] = useState("dark");
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") || "dark";
+
+    setTheme(savedTheme);
+
+    if (savedTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === "dark" ? "light" : "dark";
+
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+
+    if (newTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  };
 
   const isActive = (path) => pathname === path;
 
@@ -39,10 +66,14 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 backdrop-blur-xl bg-[#0b1220]/80 border-b border-white/10 shadow-lg">
+    <motion.nav
+      initial={{ y: -60, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="sticky top-0 z-50 backdrop-blur-xl bg-[#0b1220]/80 border-b border-white/10 shadow-lg"
+    >
       <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
 
-        {/* Logo */}
         <Link
           href="/"
           className="text-2xl font-bold text-cyan-400 tracking-wide hover:scale-105 transition"
@@ -50,16 +81,10 @@ export default function Navbar() {
           StudyNook
         </Link>
 
-        {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-7 text-sm font-medium">
 
-          <Link className={linkClass("/")} href="/">
-            Home
-          </Link>
-
-          <Link className={linkClass("/rooms")} href="/rooms">
-            Rooms
-          </Link>
+          <Link className={linkClass("/")} href="/">Home</Link>
+          <Link className={linkClass("/rooms")} href="/rooms">Rooms</Link>
 
           {user && (
             <>
@@ -78,8 +103,14 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Right */}
         <div className="hidden md:flex items-center gap-4">
+
+          <button
+            onClick={toggleTheme}
+            className="px-3 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20"
+          >
+            {theme === "dark" ? "☀️" : "🌙"}
+          </button>
 
           {user ? (
             <>
@@ -124,7 +155,6 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile Toggle */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="md:hidden text-white text-2xl cursor-pointer"
@@ -133,18 +163,21 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden px-6 pb-5 bg-[#0b1220]/95 backdrop-blur-xl border-t border-white/10 space-y-4">
 
-          <Link href="/" className={linkClass("/")}>
-            Home
-          </Link>
+          <button
+            onClick={toggleTheme}
+            className="px-3 py-2 rounded-lg bg-white/10 text-white"
+          >
+            {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
+          </button>
+
           <br />
 
-          <Link href="/rooms" className={linkClass("/rooms")}>
-            Rooms
-          </Link>
+          <Link href="/" className={linkClass("/")}>Home</Link>
+          <br />
+          <Link href="/rooms" className={linkClass("/rooms")}>Rooms</Link>
 
           {user && (
             <>
@@ -154,25 +187,18 @@ export default function Navbar() {
               </Link>
 
               <br />
-              <Link
-                href="/my-bookings"
-                className={linkClass("/my-bookings")}
-              >
+              <Link href="/my-bookings" className={linkClass("/my-bookings")}>
                 Bookings
               </Link>
 
               <br />
-              <Link
-                href="/my-listings"
-                className={linkClass("/my-listings")}
-              >
+              <Link href="/my-listings" className={linkClass("/my-listings")}>
                 Listings
               </Link>
             </>
           )}
 
           <div className="pt-4">
-
             {user ? (
               <button
                 onClick={handleLogout}
@@ -202,6 +228,6 @@ export default function Navbar() {
           </div>
         </div>
       )}
-    </nav>
+    </motion.nav>
   );
 }

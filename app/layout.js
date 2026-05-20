@@ -14,8 +14,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className="bg-gray-50 text-gray-900">
+    <html lang="en" suppressHydrationWarning>
+      <body className="bg-gray-50 text-gray-900 dark:bg-[#0b1220] dark:text-white transition-colors duration-300">
 
         <AuthProvider>
           <Navbar />
