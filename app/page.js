@@ -62,31 +62,103 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FEATURES */}
-      <section className="max-w-6xl mx-auto px-6 py-12 grid md:grid-cols-3 gap-6">
+      
+{/* FEATURES */}
+<section className="max-w-6xl mx-auto px-6 py-12 grid md:grid-cols-3 gap-6">
 
-        <div className="card p-6 text-center">
-          <h3 className="font-bold text-lg">Instant Booking</h3>
-          <p className="text-slate-400 text-sm mt-2">
-            Reserve rooms in seconds with real-time availability
+  <div className="card p-6 text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-cyan-500/20 hover:border hover:border-cyan-400/40">
+    <h3 className="font-bold text-lg">Instant Booking</h3>
+    <p className="text-slate-400 text-sm mt-2">
+      Reserve rooms in seconds with real-time availability
+    </p>
+  </div>
+
+  <div className="card p-6 text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-indigo-500/20 hover:border hover:border-indigo-400/40">
+    <h3 className="font-bold text-lg">Quiet Environment</h3>
+    <p className="text-slate-400 text-sm mt-2">
+      Focus-friendly spaces designed for productivity
+    </p>
+  </div>
+
+  <div className="card p-6 text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-emerald-500/20 hover:border hover:border-emerald-400/40">
+    <h3 className="font-bold text-lg">Affordable Pricing</h3>
+    <p className="text-slate-400 text-sm mt-2">
+      Pay only for what you use, no hidden cost
+    </p>
+  </div>
+
+</section>
+
+      {/* HOW IT WORKS */}
+      <section className="max-w-6xl mx-auto px-6 py-16">
+
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold">
+            How StudyNook Works
+          </h2>
+
+          <p className="text-slate-400 mt-4 max-w-2xl mx-auto">
+            Book productive study spaces in just a few simple steps.
           </p>
         </div>
 
-        <div className="card p-6 text-center">
-          <h3 className="font-bold text-lg">Quiet Environment</h3>
-          <p className="text-slate-400 text-sm mt-2">
-            Focus-friendly spaces designed for productivity
-          </p>
-        </div>
+        <div className="grid md:grid-cols-3 gap-8">
 
-        <div className="card p-6 text-center">
-          <h3 className="font-bold text-lg">Affordable Pricing</h3>
-          <p className="text-slate-400 text-sm mt-2">
-            Pay only for what you use, no hidden cost
-          </p>
-        </div>
+          <div className="card p-8 text-center hover:scale-105 transition duration-300">
 
+            <div className="w-16 h-16 mx-auto rounded-full bg-cyan-500/10 flex items-center justify-center text-3xl">
+              🔍
+            </div>
+
+            <h3 className="text-xl font-bold mt-6">
+              Explore Rooms
+            </h3>
+
+            <p className="text-slate-400 mt-3 text-sm">
+              Browse modern study rooms with filters for amenities,
+              pricing, and floor selection.
+            </p>
+
+          </div>
+
+          <div className="card p-8 text-center hover:scale-105 transition duration-300">
+
+            <div className="w-16 h-16 mx-auto rounded-full bg-indigo-500/10 flex items-center justify-center text-3xl">
+              📅
+            </div>
+
+            <h3 className="text-xl font-bold mt-6">
+              Book Instantly
+            </h3>
+
+            <p className="text-slate-400 mt-3 text-sm">
+              Select your preferred date and time slot with
+              real-time conflict protection.
+            </p>
+
+          </div>
+
+          <div className="card p-8 text-center hover:scale-105 transition duration-300">
+
+            <div className="w-16 h-16 mx-auto rounded-full bg-emerald-500/10 flex items-center justify-center text-3xl">
+              🎯
+            </div>
+
+            <h3 className="text-xl font-bold mt-6">
+              Study Better
+            </h3>
+
+            <p className="text-slate-400 mt-3 text-sm">
+              Enjoy quiet and comfortable environments designed
+              for focused learning and productivity.
+            </p>
+
+          </div>
+
+        </div>
       </section>
+
+
 
       {/* ROOMS SECTION */}
       <section className="max-w-6xl mx-auto px-6 pb-20">

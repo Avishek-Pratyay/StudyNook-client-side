@@ -88,7 +88,7 @@ export default function MyListingsPage() {
 
                 <button
                   onClick={() => handleDelete(room._id)}
-                  className="bg-red-500 text-white px-4 py-2 rounded"
+                  className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer"
                 >
                   Delete
                 </button>

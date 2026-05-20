@@ -154,7 +154,7 @@ export default function AddRoomPage() {
 
           <button
             disabled={loading}
-            className="md:col-span-2 py-3 rounded-xl font-semibold bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition"
+            className="md:col-span-2 py-3 rounded-xl font-semibold bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition cursor-pointer"
           >
             {loading ? "Adding Room..." : "Add Room"}
           </button>
