@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useEffect, useContext, useState } from "react";
 import { AuthContext } from "@/providers/AuthProvider";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -54,6 +54,10 @@ export default function AddRoomPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+  document.title = "StudyNook – Add Room";
+}, []);
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-[#0b1220] px-4 relative overflow-hidden">

@@ -34,6 +34,7 @@ export default function BookRoomPage() {
   }, [user, authLoading, id, router]);
 
   useEffect(() => {
+    document.title = "StudyNook – Book Rooms";
     axios.get(`${API}/rooms/${id}`).then(res => setRoom(res.data));
   }, [id]);
 
