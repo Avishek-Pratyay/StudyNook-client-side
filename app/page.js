@@ -11,7 +11,7 @@ export default function HomePage() {
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    document.title = "StudyNook – Smart Study Rooms";
+    document.title = "StudyNook – Home";
 
     const loadRooms = async () => {
       try {

@@ -11,7 +11,7 @@ export default function RoomsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    document.title = "StudyNook – Rooms";
+    document.title = "StudyNook – Available Rooms";
     fetchRooms();
   }, []);
 

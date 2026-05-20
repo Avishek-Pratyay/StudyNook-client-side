@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useEffect, useContext, useState } from "react";
 import { AuthContext } from "@/providers/AuthProvider";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -13,6 +13,9 @@ export default function RegisterPage() {
   const { registerUser, updateProfile } = useContext(AuthContext);
   const router = useRouter();
   const [error, setError] = useState("");
+  useEffect(() => {
+  document.title = "StudyNook – Register";
+}, []);
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -60,7 +63,7 @@ export default function RegisterPage() {
       router.push("/login");
     } catch (err) {
   console.log(err);
-  setError(err.message);
+  toast.error(err.message);
 }
   };
 

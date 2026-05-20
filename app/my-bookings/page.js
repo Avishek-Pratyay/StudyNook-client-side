@@ -26,6 +26,7 @@ export default function MyBookingsPage() {
   };
 
   useEffect(() => {
+    document.title = "StudyNook | My Bookings";
     loadBookings();
   }, []);
 

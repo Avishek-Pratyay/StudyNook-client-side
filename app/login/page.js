@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useEffect, useContext, useState } from "react";
 import { AuthContext } from "@/providers/AuthProvider";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -14,8 +14,7 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const redirectPath = searchParams.get("redirect") || "/";
-
+const redirectPath = searchParams.get("redirect");
   const [error, setError] = useState("");
 
   const handleLogin = async (e) => {
@@ -24,11 +23,13 @@ export default function LoginPage() {
 
     try {
       await loginUser(e.target.email.value, e.target.password.value);
-      router.push(redirectPath);
-    } catch {
-      setError("Invalid email or password");
+router.push(redirectPath || "/");    } catch {
+      toast.error("Invalid email or password");
     }
   };
+  useEffect(() => {
+  document.title = "StudyNook | Login";
+}, []);
 
   const handleGoogle = async () => {
     try {

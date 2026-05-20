@@ -15,6 +15,7 @@ export default function RoomDetails() {
   const [room, setRoom] = useState(null);
 
   useEffect(() => {
+    document.title = "StudyNook | Room Details";
     const loadRoom = async () => {
       const res = await axios.get(`${API}/rooms/${id}`);
       setRoom(res.data);
