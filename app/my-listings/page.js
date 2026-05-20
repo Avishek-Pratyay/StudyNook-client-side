@@ -1,17 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import Link from "next/link";
 import API from "@/lib/api";
+import { AuthContext } from "@/providers/AuthProvider";
+import { useRouter } from "next/navigation";
 
 export default function MyListingsPage() {
   const [rooms, setRooms] = useState([]);
+  const { user, loading } = useContext(AuthContext);
+  const router = useRouter();
 
   useEffect(() => {
     document.title = "StudyNook – My Listings";
-    loadRooms();
-  }, []);
+
+    if (!loading && !user) {
+      router.push("/login?redirect=/my-listings");
+      return;
+    }
+
+    if (user) {
+      loadRooms();
+    }
+  }, [user, loading]);
 
   const loadRooms = async () => {
     try {

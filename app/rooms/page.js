@@ -21,7 +21,7 @@ export default function RoomsPage() {
     fetchRooms();
   }, []);
 
-  // ✅ FIXED: supports ALL filters together
+  // ✅ fetch function (backend compatible)
   const fetchRooms = async (value = "", filters = {}) => {
     setLoading(true);
 
@@ -29,7 +29,6 @@ export default function RoomsPage() {
       const params = new URLSearchParams();
 
       if (value) params.append("search", value);
-
       if (filters.minPrice) params.append("minPrice", filters.minPrice);
       if (filters.maxPrice) params.append("maxPrice", filters.maxPrice);
       if (filters.floor) params.append("floor", filters.floor);
@@ -47,13 +46,14 @@ export default function RoomsPage() {
     setLoading(false);
   };
 
-  // ✅ helper to always send latest filter state
-  const applyFilters = (value = search) => {
+  // ✅ unified filter handler (FIXED)
+  const applyFilters = (value = search, override = {}) => {
     fetchRooms(value, {
       amenities,
       minPrice,
       maxPrice,
       floor,
+      ...override,
     });
   };
 
@@ -73,9 +73,9 @@ export default function RoomsPage() {
         className="w-full md:w-1/2 p-3 rounded-xl bg-white/5 border border-white/10 text-white"
       />
 
-      {/* AMENITIES CHECKBOX */}
+      {/* AMENITIES */}
       <div className="flex gap-4 flex-wrap mt-4 text-sm">
-        {["WiFi", "AC", "Projector", "Whiteboard"].map((item) => (
+        {["WiFi", "AC", "Projector", "Whiteboard", "Power Outlets", "Quiet Zone"].map((item) => (
           <label key={item} className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -89,10 +89,7 @@ export default function RoomsPage() {
                 }
 
                 setAmenities(updated);
-
-                setTimeout(() => {
-                  applyFilters();
-                }, 0);
+                applyFilters(search, { amenities: updated });
               }}
             />
             {item}
@@ -100,7 +97,7 @@ export default function RoomsPage() {
         ))}
       </div>
 
-      {/* PRICE + FLOOR */}
+      {/* PRICE + FLOOR FILTERS */}
       <div className="flex gap-3 mt-4">
 
         <input
@@ -110,7 +107,7 @@ export default function RoomsPage() {
           value={minPrice}
           onChange={(e) => {
             setMinPrice(e.target.value);
-            setTimeout(() => applyFilters(), 0);
+            applyFilters(search, { minPrice: e.target.value });
           }}
         />
 
@@ -121,7 +118,7 @@ export default function RoomsPage() {
           value={maxPrice}
           onChange={(e) => {
             setMaxPrice(e.target.value);
-            setTimeout(() => applyFilters(), 0);
+            applyFilters(search, { maxPrice: e.target.value });
           }}
         />
 
@@ -132,7 +129,7 @@ export default function RoomsPage() {
           value={floor}
           onChange={(e) => {
             setFloor(e.target.value);
-            setTimeout(() => applyFilters(), 0);
+            applyFilters(search, { floor: e.target.value });
           }}
         />
 

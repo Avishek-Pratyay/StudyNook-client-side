@@ -26,22 +26,18 @@ export default function AuthProvider({ children }) {
 
   const googleProvider = new GoogleAuthProvider();
 
-  // Register
   const registerUser = (email, password) => {
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
-  // Login
   const loginUser = (email, password) => {
     return signInWithEmailAndPassword(auth, email, password);
   };
 
-  // Google
   const googleLogin = () => {
     return signInWithPopup(auth, googleProvider);
   };
 
-  // Logout
   const logoutUser = async () => {
     try {
       await signOut(auth);
@@ -59,7 +55,6 @@ export default function AuthProvider({ children }) {
     }
   };
 
-  // Observer
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
@@ -68,7 +63,9 @@ export default function AuthProvider({ children }) {
         try {
           await axios.post(
             `${API}/jwt`,
-            { email: currentUser.email },
+            {
+              userId: currentUser.uid, // ✅ FIXED HERE
+            },
             { withCredentials: true }
           );
         } catch (err) {
