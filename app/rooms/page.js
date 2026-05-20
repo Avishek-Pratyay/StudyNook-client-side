@@ -8,6 +8,7 @@ import API from "@/lib/api";
 export default function RoomsPage() {
   const [rooms, setRooms] = useState([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     document.title = "StudyNook – Rooms";
@@ -15,8 +16,16 @@ export default function RoomsPage() {
   }, []);
 
   const fetchRooms = async (value = "") => {
-    const res = await axios.get(`${API}/rooms?search=${value}`);
-    setRooms(res.data);
+    setLoading(true);
+
+    try {
+      const res = await axios.get(`${API}/rooms?search=${value}`);
+      setRooms(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -34,7 +43,11 @@ export default function RoomsPage() {
         className="w-full md:w-1/2 p-3 rounded-xl bg-white/5 border border-white/10 text-white"
       />
 
-      {rooms.length === 0 ? (
+      {loading ? (
+        <div className="flex justify-center items-center py-20">
+          <div className="w-12 h-12 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      ) : rooms.length === 0 ? (
         <div className="text-center mt-20">
           <h2 className="text-2xl font-bold text-cyan-400">
             No rooms found

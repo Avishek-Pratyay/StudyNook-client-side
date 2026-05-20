@@ -7,13 +7,22 @@ import toast from "react-hot-toast";
 
 export default function MyBookingsPage() {
   const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const loadBookings = async () => {
-    const res = await axios.get(`${API}/bookings`, {
-      withCredentials: true,
-    });
+    setLoading(true);
 
-    setBookings(res.data);
+    try {
+      const res = await axios.get(`${API}/bookings`, {
+        withCredentials: true,
+      });
+
+      setBookings(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -40,7 +49,11 @@ export default function MyBookingsPage() {
         My Bookings
       </h1>
 
-      {bookings.length === 0 ? (
+      {loading ? (
+        <div className="flex justify-center items-center py-20">
+          <div className="w-12 h-12 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      ) : bookings.length === 0 ? (
         <p>You have no bookings yet.</p>
       ) : (
         <div className="space-y-6">
@@ -81,6 +94,7 @@ export default function MyBookingsPage() {
                   Cancel
                 </button>
               )}
+
             </div>
           ))}
 

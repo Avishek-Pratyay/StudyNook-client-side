@@ -40,12 +40,12 @@ export default function RoomDetails() {
   };
 
   if (!room) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0b1220] text-white">
-        Loading...
-      </div>
-    );
-  }
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#0b1220]">
+      <div className="w-12 h-12 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  );
+}
 
   const isOwner = user?.email === room.ownerEmail;
 
