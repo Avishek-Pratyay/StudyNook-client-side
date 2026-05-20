@@ -57,14 +57,24 @@ export default function AuthProvider({ children }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
+      setLoading(true);
+
+      if (currentUser?.email) {
         setUser(currentUser);
 
         try {
+          // clear previous token
+          await axios.post(
+            `${API}/logout`,
+            {},
+            { withCredentials: true }
+          );
+
+          // create fresh token for current user
           await axios.post(
             `${API}/jwt`,
             {
-              userId: currentUser.uid, // ✅ FIXED HERE
+              email: currentUser.email,
             },
             { withCredentials: true }
           );
@@ -72,6 +82,16 @@ export default function AuthProvider({ children }) {
           console.log(err);
         }
       } else {
+        try {
+          await axios.post(
+            `${API}/logout`,
+            {},
+            { withCredentials: true }
+          );
+        } catch (err) {
+          console.log(err);
+        }
+
         setUser(null);
       }
 
