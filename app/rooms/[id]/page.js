@@ -13,7 +13,6 @@ export default function RoomDetails() {
   const { user } = useContext(AuthContext);
 
   const [room, setRoom] = useState(null);
-  const [bookingCount, setBookingCount] = useState(0);
 
   useEffect(() => {
     const loadRoom = async () => {
@@ -21,13 +20,7 @@ export default function RoomDetails() {
       setRoom(res.data);
     };
 
-    const loadCount = async () => {
-      const res = await axios.get(`${API}/rooms/${id}/booking-count`);
-      setBookingCount(res.data.count);
-    };
-
     loadRoom();
-    loadCount();
   }, [id]);
 
   const handleDelete = async () => {
@@ -93,7 +86,7 @@ export default function RoomDetails() {
             </div>
 
             <div className="p-4 rounded-xl bg-black/30 border border-white/10">
-              Booked: <span className="text-cyan-400">{bookingCount}</span>
+              Booked: <span className="text-cyan-400">{room.bookingCount || 0}</span>
             </div>
 
           </div>

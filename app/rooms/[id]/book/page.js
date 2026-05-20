@@ -19,9 +19,14 @@ export default function BookRoomPage() {
     date: "",
     startTime: "",
     endTime: "",
+    note: "",
   });
 
-  // redirect guest to login, then come back here
+  const hours = [
+    "08:00","09:00","10:00","11:00","12:00","13:00",
+    "14:00","15:00","16:00","17:00","18:00","19:00","20:00"
+  ];
+
   useEffect(() => {
     if (!authLoading && !user) {
       router.push(`/login?redirect=/rooms/${id}/book`);
@@ -29,117 +34,106 @@ export default function BookRoomPage() {
   }, [user, authLoading, id, router]);
 
   useEffect(() => {
-    const loadRoom = async () => {
-      const res = await axios.get(`${API}/rooms/${id}`);
-      setRoom(res.data);
-    };
-
-    loadRoom();
+    axios.get(`${API}/rooms/${id}`).then(res => setRoom(res.data));
   }, [id]);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const total =
+    room && form.startTime && form.endTime
+      ? (parseInt(form.endTime) - parseInt(form.startTime)) * room.hourlyRate
+      : 0;
 
   const handleBook = async (e) => {
     e.preventDefault();
-    setLoading(true);
+
+    if (new Date(form.date) < new Date().setHours(0,0,0,0)) {
+      return toast.error("Select valid date");
+    }
 
     try {
-      const booking = {
-        roomId: id,
-        roomName: room.roomName,
-        image: room.image,
-        date: form.date,
-        startTime: form.startTime,
-        endTime: form.endTime,
-        userEmail: user.email,
-        status: "pending",
-      };
+      setLoading(true);
 
-      await axios.post(`${API}/bookings`, booking, {
-        withCredentials: true,
-      });
+      await axios.post(
+        `${API}/bookings`,
+        {
+          roomId: id,
+          roomName: room.roomName,
+          image: room.image,
+          date: form.date,
+          startTime: form.startTime,
+          endTime: form.endTime,
+          totalCost: total,
+          note: form.note,
+        },
+        { withCredentials: true }
+      );
 
-      toast.success("Booking successful");
+      toast.success("Room booked successfully!");
       router.push("/my-bookings");
-    } catch (err) {
-      toast.error("Booking failed");
+    } catch {
+      toast.error("Time slot already booked");
     } finally {
       setLoading(false);
     }
   };
 
-  if (!room || authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0b1220] text-white">
-        Loading...
-      </div>
-    );
-  }
+  if (!room || authLoading) return null;
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-[#0b1220] px-4">
-      <div className="w-full max-w-md p-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl">
-
-        <h1 className="text-2xl font-bold text-center text-cyan-400">
+    <main className="min-h-screen bg-[#0b1220] flex justify-center items-center px-4">
+      <form
+        onSubmit={handleBook}
+        className="w-full max-w-md p-8 rounded-2xl bg-white/5 border border-white/10 text-white"
+      >
+        <h1 className="text-2xl font-bold text-cyan-400 text-center">
           Book Room
         </h1>
 
-        <p className="text-center text-slate-400 text-sm mt-2">
-          {room.roomName}
-        </p>
+        <div className="space-y-4 mt-6">
 
-        <form onSubmit={handleBook} className="mt-6 space-y-5">
+          <input
+            type="date"
+            min={new Date().toISOString().split("T")[0]}
+            onChange={(e) => setForm({ ...form, date: e.target.value })}
+            className="w-full p-3 rounded bg-black/30"
+            required
+          />
 
-          <div>
-            <label className="block text-sm text-slate-300 mb-2">
-              Select booking date
-            </label>
-            <input
-              type="date"
-              name="date"
-              onChange={handleChange}
-              className="w-full p-3 rounded-xl bg-slate-900/60 border border-white/10 text-white outline-none focus:border-cyan-400 transition cursor-pointer"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm text-slate-300 mb-2">
-              Start time
-            </label>
-            <input
-              type="time"
-              name="startTime"
-              onChange={handleChange}
-              className="w-full p-3 rounded-xl bg-slate-900/60 border border-white/10 text-white outline-none focus:border-cyan-400 transition cursor-pointer"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm text-slate-300 mb-2">
-              End time
-            </label>
-            <input
-              type="time"
-              name="endTime"
-              onChange={handleChange}
-              className="w-full p-3 rounded-xl bg-slate-900/60 border border-white/10 text-white outline-none focus:border-cyan-400 transition cursor-pointer"
-              required
-            />
-          </div>
-
-          <button
-            disabled={loading}
-            className="w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-indigo-500 to-cyan-500 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300 cursor-pointer"
+          <select
+            onChange={(e) => setForm({ ...form, startTime: e.target.value })}
+            className="w-full p-3 rounded bg-black/30"
+            required
           >
+            <option value="">Start Time</option>
+            {hours.map(h => <option key={h}>{h}</option>)}
+          </select>
+
+          <select
+            onChange={(e) => setForm({ ...form, endTime: e.target.value })}
+            className="w-full p-3 rounded bg-black/30"
+            required
+          >
+            <option value="">End Time</option>
+            {hours
+              .filter(h => h > form.startTime)
+              .map(h => <option key={h}>{h}</option>)}
+          </select>
+
+          <textarea
+            placeholder="Special Note (optional)"
+            onChange={(e) => setForm({ ...form, note: e.target.value })}
+            className="w-full p-3 rounded bg-black/30"
+          />
+
+          <div className="text-cyan-400 font-semibold">
+            Total Cost: ${total}
+          </div>
+
+          <button className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:scale-105 transition cursor-pointer">
             {loading ? "Booking..." : "Confirm Booking"}
           </button>
 
-        </form>
-      </div>
+        </div>
+      </form>
     </main>
   );
 }
