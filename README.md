@@ -1,36 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+#Website Name: StudyNook 
 
-## Getting Started
+#Description:StudyNook is a modern study room booking platform where users can explore available rooms, book study spaces, manage listings, and schedule study sessions easily.
 
-First, run the development server:
+## 🌐 Live Website Client Side Live Link: https://studynook-client-side.vercel.app 
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Features:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- 🔐 Secure authentication using Firebase Authentication and JWT HTTP-only cookies.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- 🏢 Users can add, update, and delete their own study room listings.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- 🔍 Advanced search and filtering by room name, amenities, floor, and price range.
 
-## Learn More
+- 📅 Smart booking system with overlapping booking conflict prevention using MongoDB operators.
 
-To learn more about Next.js, take a look at the following resources:
+- 👤 Personalized My Bookings and My Listings pages for each logged-in user.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- 🌙 Responsive modern UI with dark-themed design and mobile-friendly navigation.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- ⚡ Google OAuth login support for quick authentication.
 
-## Deploy on Vercel
+- 📈 Booking count automatically updates when users reserve a room.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🛠️ Technologies Used:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Frontend - Next.js - React - Tailwind CSS - Axios - Firebase Authentication - Framer Motion 
+
+### Backend - Node.js - Express.js - MongoDB - JWT Authentication - Cookie Parser - CORS
