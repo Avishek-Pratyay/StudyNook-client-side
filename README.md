@@ -206,15 +206,14 @@ Fill them with your own credentials.
 ### Email Login
 
 ```text
-Email: demo@studynook.com
-Password: Demo123@
+Email: admin@gmail.com
+Password: Aa12345
 ```
 
 ### Alternative
 
 Use Google Login.
 
-> Replace the demo credentials with a real account if required.
 
 ---
 
